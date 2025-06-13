@@ -1,0 +1,641 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Table Assistant - EZTable</title>
+    <link rel="icon" type="image/x-icon" href="../static/images/favicon.JPG">
+    <link rel="stylesheet" href="../static/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        padding-top: 0;
+        background-color: var(--gray-50);
+      }
+
+      .table-assistant-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--primary-light) 100%
+        );
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        box-shadow: var(--shadow-lg);
+      }
+
+      .table-info {
+        margin-bottom: 0.5rem;
+      }
+
+      .restaurant-name {
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+
+      .table-number {
+        font-size: var(--font-size-sm);
+        opacity: 0.9;
+      }
+
+      .assistant-nav {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .nav-chip {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: var(--border-radius-full);
+        color: white;
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        white-space: nowrap;
+        transition: all var(--transition-fast);
+        cursor: pointer;
+      }
+
+      .nav-chip.active,
+      .nav-chip:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      .assistant-content {
+        padding: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .section {
+        display: none;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+
+      .section.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .action-card {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        transition: transform var(--transition-fast);
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+
+      .action-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary);
+      }
+
+      .action-icon {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .action-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .action-description {
+        font-size: var(--font-size-sm);
+        color: var(--gray-600);
+      }
+
+      .menu-category {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        margin-bottom: 1rem;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .category-header {
+        background: var(--primary-bg);
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .category-title {
+        font-weight: 600;
+        color: var(--primary);
+        margin: 0;
+      }
+
+      .menu-items {
+        padding: 0;
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-100);
+        transition: background-color var(--transition-fast);
+      }
+
+      .menu-item:last-child {
+        border-bottom: none;
+      }
+
+      .menu-item:hover {
+        background-color: var(--gray-50);
+      }
+
+      .item-image {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--border-radius);
+        -o-object-fit: cover;
+           object-fit: cover;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+
+      .item-details {
+        flex-grow: 1;
+        margin-right: 1rem;
+      }
+
+      .item-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .item-description {
+        font-size: var(--font-size-sm);
+        color: var(--gray-600);
+        margin-bottom: 0.25rem;
+      }
+
+      .item-price {
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .add-button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius-full);
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-lg);
+        cursor: pointer;
+        transition: background-color var(--transition-fast);
+      }
+
+      .add-button:hover {
+        background: var(--primary-dark);
+      }
+
+      .service-buttons {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .service-button {
+        background: white;
+        border: 2px solid var(--gray-200);
+        border-radius: var(--border-radius-lg);
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        font-weight: 600;
+        transition: all var(--transition-fast);
+        cursor: pointer;
+      }
+
+      .service-button:hover {
+        border-color: var(--primary);
+        background-color: var(--primary-bg);
+      }
+
+      .service-button.urgent {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+
+      .service-button.urgent:hover {
+        background-color: rgba(239, 68, 68, 0.1);
+      }
+
+      .cart-summary {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid var(--gray-200);
+        padding: 1rem;
+        display: none;
+        box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .cart-summary.visible {
+        display: block;
+      }
+
+      .cart-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .cart-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .cart-count {
+        background: var(--primary);
+        color: white;
+        border-radius: var(--border-radius-full);
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+      }
+
+      .order-total {
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .view-cart-button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .bill-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--gray-100);
+      }
+
+      .bill-item:last-child {
+        border-bottom: none;
+        font-weight: 600;
+        font-size: var(--font-size-lg);
+      }
+
+      .rating-stars {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+
+      .star {
+        font-size: 2rem;
+        color: var(--gray-300);
+        cursor: pointer;
+        transition: color var(--transition-fast);
+      }
+
+      .star:hover,
+      .star.active {
+        color: #fbbf24;
+      }
+
+      .feedback-form {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--success);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-full);
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        margin-top: 1rem;
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Table Assistant Header -->
+    <header class="table-assistant-header">
+      <div class="table-info">
+        <div class="restaurant-name" id="restaurantName">Tempo Specialty Coffee</div>
+        <div class="table-number" id="tableInfo">Table 5 • 4 Guests</div>
+      </div>
+
+      <nav class="assistant-nav">
+        <button class="nav-chip active" data-section="quick-actions">
+          <i class="fa-solid fa-home"></i> Home
+        </button>
+        <button class="nav-chip" data-section="menu">
+          <i class="fa-solid fa-utensils"></i> Menu
+        </button>
+        <button class="nav-chip" data-section="service">
+          <i class="fa-solid fa-bell"></i> Service
+        </button>
+        <button class="nav-chip" data-section="bill">
+          <i class="fa-solid fa-receipt"></i> Bill
+        </button>
+        <button class="nav-chip" data-section="feedback">
+          <i class="fa-solid fa-star"></i> Feedback
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="assistant-content">
+      <!-- Quick Actions Section -->
+      <section class="section active" id="quick-actions">
+        <div class="quick-actions">
+          <div class="action-card" onclick="switchSection('menu')">
+            <div class="action-icon">
+              <i class="fa-solid fa-utensils"></i>
+            </div>
+            <div class="action-title">View Menu</div>
+            <div class="action-description">Browse our delicious offerings</div>
+          </div>
+
+          <div class="action-card" onclick="callService('water')">
+            <div class="action-icon">
+              <i class="fa-solid fa-glass-water"></i>
+            </div>
+            <div class="action-title">Request Water</div>
+            <div class="action-description">Get fresh water for your table</div>
+          </div>
+
+          <div class="action-card" onclick="callService('assistance')">
+            <div class="action-icon">
+              <i class="fa-solid fa-hand-paper"></i>
+            </div>
+            <div class="action-title">Call Server</div>
+            <div class="action-description">Get assistance from our staff</div>
+          </div>
+
+          <div class="action-card" onclick="switchSection('bill')">
+            <div class="action-icon">
+              <i class="fa-solid fa-receipt"></i>
+            </div>
+            <div class="action-title">View Bill</div>
+            <div class="action-description">Check your current order total</div>
+          </div>
+        </div>
+
+        <div class="current-status">
+          <h3>Table Status</h3>
+          <div id="tableStatus">
+            <div class="status-indicator">
+              <i class="fa-solid fa-check-circle"></i>
+              Table is ready for orders
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Menu Section -->
+      <section class="section" id="menu">
+        <div id="menuCategories">
+          <!-- Menu categories will be loaded here -->
+        </div>
+      </section>
+
+      <!-- Service Section -->
+      <section class="section" id="service">
+        <h2>Request Service</h2>
+        <div class="service-buttons">
+          <button class="service-button" onclick="callService('water')">
+            <i class="fa-solid fa-glass-water"></i>
+            <span>Water Refill</span>
+          </button>
+
+          <button class="service-button" onclick="callService('assistance')">
+            <i class="fa-solid fa-hand-paper"></i>
+            <span>Server Assistance</span>
+          </button>
+
+          <button class="service-button" onclick="callService('condiments')">
+            <i class="fa-solid fa-salt-shaker"></i>
+            <span>Condiments & Napkins</span>
+          </button>
+
+          <button class="service-button" onclick="callService('check')">
+            <i class="fa-solid fa-credit-card"></i>
+            <span>Request Check</span>
+          </button>
+
+          <button class="service-button urgent" onclick="callService('urgent')">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <span>Urgent Assistance</span>
+          </button>
+        </div>
+
+        <div id="serviceRequests">
+          <!-- Active service requests will be shown here -->
+        </div>
+      </section>
+
+      <!-- Bill Section -->
+      <section class="section" id="bill">
+        <h2>Your Bill</h2>
+        <div
+          class="bill-summary"
+          style="
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+          "
+        >
+          <div id="billItems">
+            <!-- Bill items will be loaded here -->
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem">
+          <button class="btn btn-primary btn-full" onclick="requestPayment()">
+            <i class="fa-solid fa-credit-card"></i>
+            Request Payment
+          </button>
+        </div>
+      </section>
+
+      <!-- Feedback Section -->
+      <section class="section" id="feedback">
+        <h2>Rate Your Experience</h2>
+        <div class="feedback-form">
+          <div class="rating-stars" id="ratingStars">
+            <i class="fa-solid fa-star star" data-rating="1"></i>
+            <i class="fa-solid fa-star star" data-rating="2"></i>
+            <i class="fa-solid fa-star star" data-rating="3"></i>
+            <i class="fa-solid fa-star star" data-rating="4"></i>
+            <i class="fa-solid fa-star star" data-rating="5"></i>
+          </div>
+
+          <div class="form-group">
+            <label for="feedbackText"
+              >Tell us about your experience (optional)</label
+            >
+            <textarea
+              id="feedbackText"
+              class="form-control"
+              rows="4"
+              placeholder="Share your thoughts about the food, service, or atmosphere..."
+            ></textarea>
+          </div>
+
+          <button class="btn btn-primary btn-full" onclick="submitFeedback()">
+            <i class="fa-solid fa-paper-plane"></i>
+            Submit Feedback
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Cart Summary (Fixed Bottom) -->
+    <div class="cart-summary" id="cartSummary">
+      <div class="cart-content">
+        <div class="cart-info">
+          <div class="cart-count" id="cartCount">0</div>
+          <span>items in order</span>
+        </div>
+        <div class="order-total" id="orderTotal">$0.00</div>
+        <button class="view-cart-button" onclick="viewCart()">
+          View Order
+        </button>
+      </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div class="modal" id="orderModal">
+      <div class="modal-overlay" onclick="closeOrderModal()"></div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Your Order</h3>
+            <button class="modal-close" onclick="closeOrderModal()">
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="orderItems">
+              <!-- Order items will be shown here -->
+            </div>
+            <div class="order-summary">
+              <div class="bill-item">
+                <span>Subtotal</span>
+                <span id="subtotal">$0.00</span>
+              </div>
+              <div class="bill-item">
+                <span>Tax</span>
+                <span id="tax">$0.00</span>
+              </div>
+              <div class="bill-item">
+                <span>Total</span>
+                <span id="modalTotal">$0.00</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeOrderModal()">
+              Continue Ordering
+            </button>
+            <button class="btn btn-primary" onclick="placeOrder()">
+              <i class="fa-solid fa-paper-plane"></i>
+              Place Order
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+  
+
+    <!-- Scripts -->
+    <script src="../static/js/data.js"></script>
+    <script src="../static/js/table-assistant.js"></script>
+   
+  </body>
+</html>
+            
